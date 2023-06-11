@@ -72,23 +72,39 @@ public class VerificationBox extends javax.swing.JFrame {
             row[2] = list.get(i).getHash_Key();
             
             String directoryPath = "F:\\Projects\\LicenseManagementSystem\\lic_files\\";
-            String fileName = list.get(i).getHash_Key() + "_verify.json";
-            File vf = new File(directoryPath+fileName);
+            String VerifyfileName = list.get(i).getHash_Key() + "_verify.json";
+            File vf = new File(directoryPath+VerifyfileName);
+            String DeactivatefileName = list.get(i).getHash_Key() + "_deactivate.json";
+            File df = new File(directoryPath+DeactivatefileName);
             
-            if(vf.exists()){
+            if(vf.exists() || df.exists()){
                 model.addRow(row);
                 
-                jTable1.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
-                    @Override
-                    public void valueChanged(ListSelectionEvent event){
-                        if(!event.getValueIsAdjusting()){
-                            int selectedRow = jTable1.getSelectedRow();
-                            if(selectedRow != -1){
-                                verifyButton.setEnabled(true);
+                if(vf.exists()){
+                    jTable1.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+                        @Override
+                        public void valueChanged(ListSelectionEvent event){
+                            if(!event.getValueIsAdjusting()){
+                                int selectedRow = jTable1.getSelectedRow();
+                                if(selectedRow != -1){
+                                    verifyButton.setEnabled(true);
                             }
                         }
                     }
                 });
+                }else if(df.exists()){
+                    jTable1.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+                        @Override
+                        public void valueChanged(ListSelectionEvent event){
+                            if(!event.getValueIsAdjusting()){
+                                int selectedRow = jTable1.getSelectedRow();
+                                if(selectedRow != -1){
+                                    deactivateButton.setEnabled(true);
+                            }
+                        }
+                    }
+                });
+                }
             }          
         }
     }
