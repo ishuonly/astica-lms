@@ -92,7 +92,8 @@ public class VerificationBox extends javax.swing.JFrame {
                         }
                     }
                 });
-                }else if(df.exists()){
+                }
+                if(df.exists()){
                     jTable1.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
                         @Override
                         public void valueChanged(ListSelectionEvent event){
