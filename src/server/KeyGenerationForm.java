@@ -120,7 +120,7 @@ saveToDbButton.setForeground(new Color(255, 255, 255));
         return null;
     }
 
-    private void saveToDatabase(String un, String sysId, String key) {
+    public void saveToDatabase(String un, String sysId, String key) {
 //        // Modify the connection details as per your database configuration
 //        String url = "jdbc:mysql://localhost:3306/serverdb?zeroDateTimeBehavior=CONVERT_TO_NULL";
 //        String username = "root";
@@ -137,8 +137,8 @@ saveToDbButton.setForeground(new Color(255, 255, 255));
             preparedStatement.executeUpdate();
             preparedStatement.close();
             con.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null,e);
         }
     }
 
