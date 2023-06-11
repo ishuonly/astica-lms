@@ -133,7 +133,7 @@ saveToDbButton.setForeground(new Color(255, 255, 255));
         try {
             Connection con = ConnectionProvider.getConn();
             String query = "INSERT INTO userdb (Username, SystemID, Hash_key, Subscription) VALUES (?, ?, ?, ?)";
-=
+
             PreparedStatement preparedStatement = con.prepareStatement(query);
             preparedStatement.setString(1, un);
             preparedStatement.setString(2, sysId);
