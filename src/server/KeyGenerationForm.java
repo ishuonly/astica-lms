@@ -1,4 +1,6 @@
+
 package server;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -9,7 +11,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+
 import databases.ConnectionProvider;
+
 
 public class KeyGenerationForm extends JFrame {
     private JTextField textField1;
@@ -121,24 +125,26 @@ saveToDbButton.setForeground(new Color(255, 255, 255));
     }
 
     public void saveToDatabase(String un, String sysId, String key) {
-//        // Modify the connection details as per your database configuration
+//        Modify the connection details as per your database configuration
 //        String url = "jdbc:mysql://localhost:3306/serverdb?zeroDateTimeBehavior=CONVERT_TO_NULL";
-//        String username = "root";
-//        String password = "code_ishag";
+////        String username = "root";
+////        String password = "dubey123";
 
         try {
             Connection con = ConnectionProvider.getConn();
             String query = "INSERT INTO userdb (Username, SystemID, Hash_key, Subscription) VALUES (?, ?, ?, ?)";
+
             PreparedStatement preparedStatement = con.prepareStatement(query);
             preparedStatement.setString(1, un);
             preparedStatement.setString(2, sysId);
             preparedStatement.setString(3, key);
-            preparedStatement.setInt(4, 0);
+             preparedStatement.setInt(4, 0);
             preparedStatement.executeUpdate();
             preparedStatement.close();
             con.close();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null,e);
+        } catch (SQLException e) {
+            e.printStackTrace();
+
         }
     }
 
