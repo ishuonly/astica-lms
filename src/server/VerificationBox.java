@@ -5,6 +5,7 @@
 package server;
 
 import java.sql.Statement;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import databases.ConnectionProvider;
 import java.sql.Connection;
@@ -14,9 +15,16 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import java.io.FileReader;
 
 /**
  *
@@ -36,6 +44,7 @@ public class VerificationBox extends javax.swing.JFrame {
         
         verifyButton.setEnabled(false);
         deactivateButton.setEnabled(false);
+        
     }
     
     
@@ -66,7 +75,8 @@ public class VerificationBox extends javax.swing.JFrame {
         ArrayList<User> list = userdb();
         DefaultTableModel model = (DefaultTableModel)jTable1.getModel();
         Object[] row = new Object[3];
-        for(int i=0;i<list.size();i++){
+        int i;
+        for(i=0;i<list.size();i++){
             row[0] = list.get(i).getUsername();
             row[1] = list.get(i).getSystemID();
             row[2] = list.get(i).getHash_Key();
@@ -87,11 +97,80 @@ public class VerificationBox extends javax.swing.JFrame {
                             if(!event.getValueIsAdjusting()){
                                 int selectedRow = jTable1.getSelectedRow();
                                 if(selectedRow != -1){
-                                    verifyButton.setEnabled(true);
+                                    verifyButton.setEnabled(true);                                    
                             }
                         }
                     }
                 });
+                    
+                    ActionListener listener = new ActionListener(){
+                        public void actionPerformed(ActionEvent e){
+//                            JOptionPane.showMessageDialog(null,i);
+                            try(FileReader fileReader = new FileReader(directoryPath+VerifyfileName)){
+                                JsonElement jsonElement = JsonParser.parseReader(fileReader);
+                                
+                                if(jsonElement.isJsonArray()){
+                                    JsonArray jsonArray = jsonElement.getAsJsonArray();
+                                    
+                                    for(JsonElement element : jsonArray){
+                                        if(element.isJsonObject()){
+                                            JsonObject jsonObject = element.getAsJsonObject();
+                                            
+                                            String username = jsonObject.get("Username").getAsString();
+                                            String sysid = jsonObject.get("SystemID").getAsString();
+                                            String hashkey = jsonObject.get("Hash_Key").getAsString();
+                                            String mothersn = jsonObject.get("MotherboardSN").getAsString();
+                                            String cpuid = jsonObject.get("CPU_ID").getAsString();
+                                            String mac = jsonObject.get("MACAddress").getAsString();
+                                            
+                                            int selectedRow = jTable1.getSelectedRow();
+                                            String susername = jTable1.getValueAt(selectedRow,0).toString();
+                                            String ssysid = jTable1.getValueAt(selectedRow,1).toString();
+                                            String shashkey = jTable1.getValueAt(selectedRow,2).toString();
+                                            
+                                            if(username.equals(susername) && sysid.equals(ssysid) && hashkey.equals(shashkey)){
+                                                
+                                                String updateQuery = "UPDATE userdb SET MotherboardSN=?, CPU_ID=?, MACAddress=?, Subscription=? WHERE Hash_key=?";
+                                                
+                                                try(Connection con = ConnectionProvider.getConn();
+                                                        PreparedStatement pstmt = con.prepareStatement(updateQuery);){
+                                                    pstmt.setString(1,mothersn);
+                                                    pstmt.setString(2,cpuid);
+                                                    pstmt.setString(3,mac);
+                                                    pstmt.setInt(4,1);
+                                                    pstmt.setString(5,hashkey);
+                                                    
+                                                    int rowsAffected = pstmt.executeUpdate();
+                                                    
+                                                    if(rowsAffected > 0 ){
+                                                        JOptionPane.showMessageDialog(null,"Database row updated successfully");
+                                                    } else {
+                                                        JOptionPane.showMessageDialog(null,"Failed to update the database row");
+                                                    }
+                                                    
+                                                }catch(Exception excep){
+                                                    JOptionPane.showMessageDialog(null,excep);
+                                                }
+                                                
+                                                JOptionPane.showMessageDialog(null,"Verified and License Activated!");
+                                                int v=1;
+                                                
+                                                if(v==1){
+                                                    //Row to json file generation code here
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else{
+                                    System.out.println("Invalid JSON file format. Expected a JSON array.");
+                                }
+                            }catch(IOException exception){
+                                exception.printStackTrace();
+                            }
+                        }
+                    };
+                
+                    verifyButton.addActionListener(listener);
                 }
                 if(df.exists()){
                     jTable1.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
