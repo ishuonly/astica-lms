@@ -50,8 +50,8 @@ public class VerificationBox extends javax.swing.JFrame {
 
     public ArrayList<User> userdb() {
         ArrayList<User> usersdb = new ArrayList<>();
-        
-         try {
+
+        try {
             Connection con = ConnectionProviderS.getConn();
             String query = "SELECT * FROM userdb";
             Statement st = con.createStatement();
@@ -100,7 +100,7 @@ public class VerificationBox extends javax.swing.JFrame {
                         }
                     });
 
-                    ActionListener listener = new ActionListener() {
+                    ActionListener vlistener = new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
 //                            JOptionPane.showMessageDialog(null,i);
                             JsonElement jsonElement;
@@ -129,7 +129,7 @@ public class VerificationBox extends javax.swing.JFrame {
 
                                                 String updateQuery = "UPDATE userdb SET MotherboardSN=?, CPU_ID=?, MACAddress=?, Subscription=? WHERE Hash_key=?";
 
-                                                try (Connection con = ConnectionProvider.getConn(); PreparedStatement pstmt = con.prepareStatement(updateQuery);) {
+                                                try (Connection con = ConnectionProviderS.getConn(); PreparedStatement pstmt = con.prepareStatement(updateQuery);) {
                                                     pstmt.setString(1, mothersn);
                                                     pstmt.setString(2, cpuid);
                                                     pstmt.setString(3, mac);
@@ -183,7 +183,7 @@ public class VerificationBox extends javax.swing.JFrame {
                         }
 
                     };
-                    verifyButton.addActionListener(listener);
+                    verifyButton.addActionListener(vlistener);
                 }
                 if (df.exists()) {
                     jTable1.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -197,6 +197,36 @@ public class VerificationBox extends javax.swing.JFrame {
                             }
                         }
                     });
+
+                    ActionListener dlistener = new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                            try {
+                                int selectedRow = jTable1.getSelectedRow();
+                                if (selectedRow != -1) {
+                                    String hashKey = (String) jTable1.getValueAt(selectedRow, 2);
+                                    updateSubscription(hashKey, 0);
+                                    JOptionPane.showMessageDialog(null, "License deactivated successfully!");
+                                }
+                            } catch (Exception execp) {
+                                JOptionPane.showMessageDialog(null, execp);
+                            }
+                        }//GEN-LAST:event_deactivateButtonActionPerformed
+
+                        public void updateSubscription(String hashKey, int subscription) {
+                            try {
+                                Connection con = ConnectionProviderS.getConn();
+                                String query = "UPDATE userdb SET Subscription = ? WHERE Hash_Key = ?";
+                                PreparedStatement preparedStatement = con.prepareStatement(query);
+                                preparedStatement.setInt(1, subscription);
+                                preparedStatement.setString(2, hashKey);
+                                preparedStatement.executeUpdate();
+                            } catch (Exception e) {
+                                JOptionPane.showMessageDialog(null, e);
+                            }
+                        }
+                    };
+                    deactivateButton.addActionListener(dlistener);
+
                 }
             }
 
