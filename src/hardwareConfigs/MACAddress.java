@@ -1,3 +1,4 @@
+package hardwareConfigs;
 // Java program to access all the MAC addresses of the
 // localhost machine
   
@@ -19,7 +20,7 @@ public class MACAddress {
   
     // method to get the MAC addresses of the
     // localhost machine
-    void getMAC()
+    public static String getMAC()
     {
         try {
             
@@ -42,8 +43,6 @@ public class MACAddress {
                 byte[] mac = network.getHardwareAddress();
   
                 if (mac != null) {
-                    System.out.print(
-                        "Current MAC address : ");
                     
                     // convert the obtained byte array into
                     // a printable String
@@ -57,12 +56,13 @@ public class MACAddress {
                     
                     // print the final String containing the
                     // MAC Address
-                    System.out.println(sb.toString());
+                    return(sb.toString());
                 }
             }
         }
         catch (SocketException e) {
             e.printStackTrace();
         }
+        return null;
     }
 }

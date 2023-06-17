@@ -6,13 +6,13 @@ import java.sql.DriverManager;
  *
  * @author ASUS
  */
-public class ConnectionProvider {
+public class ConnectionProviderC {
     public static Connection getConn(){
         try{
            Class.forName("com.mysql.cj.jdbc.Driver");
 
 
-           Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/serverdb?zeroDateTimeBehavior=CONVERT_TO_NULL", "root", "code_ishag");
+           Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/clientdb?zeroDateTimeBehavior=CONVERT_TO_NULL", "root", "code_ishag");
 
            return con;
         }
