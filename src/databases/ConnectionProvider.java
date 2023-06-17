@@ -12,7 +12,7 @@ public class ConnectionProvider {
            Class.forName("com.mysql.cj.jdbc.Driver");
 
 
-           Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/serverdb?zeroDateTimeBehavior=CONVERT_TO_NULL", "root", "dubey123");
+           Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/serverdb?zeroDateTimeBehavior=CONVERT_TO_NULL", "root", "code_ishag");
 
            return con;
         }
