@@ -144,6 +144,7 @@ public class ClientForm extends javax.swing.JFrame {
 
     private void deactivateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deactivateActionPerformed
         // TODO add your handling code here:
+        
     }//GEN-LAST:event_deactivateActionPerformed
 
     private void activateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_activateActionPerformed
@@ -158,10 +159,6 @@ public class ClientForm extends javax.swing.JFrame {
         saveToDatabase(un,sysId,key,mac,cpu,motherboard);
     }//GEN-LAST:event_activateActionPerformed
  public void saveToDatabase(String un, String sysId, String key, String mac, String cpu, String motherboard) {
-//        Modify the connection details as per your database configuration
-//        String url = "jdbc:mysql://localhost:3306/serverdb?zeroDateTimeBehavior=CONVERT_TO_NULL";
-////        String username = "root";
-////        String password = "dubey123";
 
         try {
             Connection con = ConnectionProviderC.getConn();
