@@ -5,6 +5,7 @@
 package server;
 
 import java.sql.Statement;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import databases.ConnectionProviderS;
 import java.sql.Connection;
@@ -14,9 +15,17 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import java.io.FileReader;
+import java.io.FileWriter;
 
 /**
  *
@@ -33,14 +42,13 @@ public class VerificationBox extends javax.swing.JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         show_user();
-        
+
         verifyButton.setEnabled(false);
         deactivateButton.setEnabled(false);
-    }
-    
-    
 
-    public ArrayList<User> userdb(){
+    }
+
+    public ArrayList<User> userdb() {
         ArrayList<User> usersdb = new ArrayList<>();
         
          try {
@@ -49,67 +57,152 @@ public class VerificationBox extends javax.swing.JFrame {
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery(query);
             User user;
-            while(rs.next()){
-                user=new User(rs.getString("Username"), rs.getString("SystemID"), rs.getString("Hash_Key"), rs.getString("MotherboardSN"), rs.getString("CPU_ID"), rs.getString("MACAddress"), rs.getInt("Subscription") );
+            while (rs.next()) {
+                user = new User(rs.getString("Username"), rs.getString("SystemID"), rs.getString("Hash_Key"), rs.getString("MotherboardSN"), rs.getString("CPU_ID"), rs.getString("MACAddress"), rs.getInt("Subscription"));
                 usersdb.add(user);
             }
-        } 
-         catch (Exception e) {
-            JOptionPane.showMessageDialog(null,e);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e);
         }
-         return usersdb;
+        return usersdb;
     }
-    
-    
-    public void show_user(){
- 
+
+    public void show_user() {
+
         ArrayList<User> list = userdb();
-        DefaultTableModel model = (DefaultTableModel)jTable1.getModel();
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
         Object[] row = new Object[3];
-        for(int i=0;i<list.size();i++){
+        int i;
+        for (i = 0; i < list.size(); i++) {
             row[0] = list.get(i).getUsername();
             row[1] = list.get(i).getSystemID();
             row[2] = list.get(i).getHash_Key();
-            
-            String directoryPath = "F:\\Projects\\LicenseManagementSystem\\lic_files\\";
+
+            String directoryPath = "F:\\Projects\\LicenseManagementSystem\\client_lic_files\\";
             String VerifyfileName = list.get(i).getHash_Key() + "_verify.json";
-            File vf = new File(directoryPath+VerifyfileName);
+            File vf = new File(directoryPath + VerifyfileName);
             String DeactivatefileName = list.get(i).getHash_Key() + "_deactivate.json";
-            File df = new File(directoryPath+DeactivatefileName);
-            
-            if(vf.exists() || df.exists()){
+            File df = new File(directoryPath + DeactivatefileName);
+
+            if (vf.exists() || df.exists()) {
                 model.addRow(row);
-                
-                if(vf.exists()){
-                    jTable1.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+
+                if (vf.exists()) {
+                    jTable1.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
                         @Override
-                        public void valueChanged(ListSelectionEvent event){
-                            if(!event.getValueIsAdjusting()){
+                        public void valueChanged(ListSelectionEvent event) {
+                            if (!event.getValueIsAdjusting()) {
                                 int selectedRow = jTable1.getSelectedRow();
-                                if(selectedRow != -1){
+                                if (selectedRow != -1) {
                                     verifyButton.setEnabled(true);
+                                }
                             }
                         }
-                    }
-                });
+                    });
+
+                    ActionListener listener = new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+//                            JOptionPane.showMessageDialog(null,i);
+                            JsonElement jsonElement;
+                            try (FileReader fileReader = new FileReader(directoryPath + VerifyfileName)) {
+                                jsonElement = JsonParser.parseReader(fileReader);
+
+                                if (jsonElement.isJsonArray()) {
+                                    JsonArray jsonArray = jsonElement.getAsJsonArray();
+                                    for (JsonElement element : jsonArray) {
+                                        if (element.isJsonObject()) {
+                                            JsonObject jsonObject = element.getAsJsonObject();
+
+                                            String username = jsonObject.get("Username").getAsString();
+                                            String sysid = jsonObject.get("SystemID").getAsString();
+                                            String hashkey = jsonObject.get("Hash_Key").getAsString();
+                                            String mothersn = jsonObject.get("MotherboardSN").getAsString();
+                                            String cpuid = jsonObject.get("CPU_ID").getAsString();
+                                            String mac = jsonObject.get("MACAddress").getAsString();
+
+                                            int selectedRow = jTable1.getSelectedRow();
+                                            String susername = jTable1.getValueAt(selectedRow, 0).toString();
+                                            String ssysid = jTable1.getValueAt(selectedRow, 1).toString();
+                                            String shashkey = jTable1.getValueAt(selectedRow, 2).toString();
+
+                                            if (username.equals(susername) && sysid.equals(ssysid) && hashkey.equals(shashkey)) {
+
+                                                String updateQuery = "UPDATE userdb SET MotherboardSN=?, CPU_ID=?, MACAddress=?, Subscription=? WHERE Hash_key=?";
+
+                                                try (Connection con = ConnectionProvider.getConn(); PreparedStatement pstmt = con.prepareStatement(updateQuery);) {
+                                                    pstmt.setString(1, mothersn);
+                                                    pstmt.setString(2, cpuid);
+                                                    pstmt.setString(3, mac);
+                                                    pstmt.setInt(4, 1);
+                                                    pstmt.setString(5, hashkey);
+
+                                                    int rowsAffected = pstmt.executeUpdate();
+
+                                                    if (rowsAffected > 0) {
+                                                        JOptionPane.showMessageDialog(null, "Database row updated successfully");
+                                                    } else {
+                                                        JOptionPane.showMessageDialog(null, "Failed to update the database row");
+                                                    }
+
+                                                } catch (Exception excep) {
+                                                    JOptionPane.showMessageDialog(null, excep);
+                                                }
+
+                                                JOptionPane.showMessageDialog(null, "Verified and License Activated!");
+                                                int v = 1;
+                                                if (v == 1) {
+                                                    String directoryPath2 = "F:\\Projects\\LicenseManagementSystem\\server_lic_files\\";
+                                                    JsonObject rowJson = new JsonObject();
+                                                    rowJson.addProperty("Username", username);
+                                                    rowJson.addProperty("SystemID", sysid);
+                                                    rowJson.addProperty("Hash_Key", hashkey);
+                                                    rowJson.addProperty("MotherboardSN", mothersn);
+                                                    rowJson.addProperty("CPU_ID", cpuid);
+                                                    rowJson.addProperty("MACAddress", mac);
+                                                    rowJson.addProperty("Subscription", 1);
+
+                                                    try (FileWriter fileWriter = new FileWriter(directoryPath2 + hashkey + "_verify.json")) {
+                                                        fileWriter.write(rowJson.toString());
+                                                    } catch (IOException ex) {
+                                                        ex.printStackTrace();
+                                                    }
+
+                                                }
+                                            }
+                                        }
+
+                                    }
+                                } else {
+                                    System.out.println("Invalid JSON file format. Expected a JSON array.");
+                                }
+
+                            } catch (IOException exception) {
+                                exception.printStackTrace();
+                            }
+
+                        }
+
+                    };
+                    verifyButton.addActionListener(listener);
                 }
-                if(df.exists()){
-                    jTable1.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+                if (df.exists()) {
+                    jTable1.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
                         @Override
-                        public void valueChanged(ListSelectionEvent event){
-                            if(!event.getValueIsAdjusting()){
+                        public void valueChanged(ListSelectionEvent event) {
+                            if (!event.getValueIsAdjusting()) {
                                 int selectedRow = jTable1.getSelectedRow();
-                                if(selectedRow != -1){
+                                if (selectedRow != -1) {
                                     deactivateButton.setEnabled(true);
+                                }
                             }
                         }
-                    }
-                });
+                    });
                 }
-            }          
+            }
+
         }
     }
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
