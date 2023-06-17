@@ -1,3 +1,4 @@
+package hardwareConfigs;
 // Java Program to get CPU Serial Number of Windows Machine
 // using FileWriter class
  
@@ -13,7 +14,7 @@ public class cpuSN {
  
     // Method 1
     // To get CPU serial number
-    private static String getWindowsCPU_SerialNumber()
+    public static String getWindowsCPU_SerialNumber()
     {
  
         // Initially declaring and initializing an empty

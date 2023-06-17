@@ -6,7 +6,7 @@ package server;
 
 import java.sql.Statement;
 import java.sql.ResultSet;
-import databases.ConnectionProvider;
+import databases.ConnectionProviderS;
 import java.sql.Connection;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
@@ -44,7 +44,7 @@ public class VerificationBox extends javax.swing.JFrame {
         ArrayList<User> usersdb = new ArrayList<>();
         
          try {
-            Connection con = ConnectionProvider.getConn();
+            Connection con = ConnectionProviderS.getConn();
             String query = "SELECT * FROM userdb";
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery(query);

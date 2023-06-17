@@ -12,7 +12,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import databases.ConnectionProvider;
+import databases.ConnectionProviderS;
 
 
 public class KeyGenerationForm extends JFrame {
@@ -131,7 +131,7 @@ saveToDbButton.setForeground(new Color(255, 255, 255));
 ////        String password = "dubey123";
 
         try {
-            Connection con = ConnectionProvider.getConn();
+            Connection con = ConnectionProviderS.getConn();
             String query = "INSERT INTO userdb (Username, SystemID, Hash_key, Subscription) VALUES (?, ?, ?, ?)";
 
             PreparedStatement preparedStatement = con.prepareStatement(query);
