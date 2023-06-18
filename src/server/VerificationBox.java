@@ -179,10 +179,11 @@ public class VerificationBox extends javax.swing.JFrame {
                                     System.out.println("Invalid JSON file format. Expected a JSON array.");
                                 }
                                      // Close the FileReader to release the file resources
-    fileReader.close();
+                                        fileReader.close();
 
-    // Call the function to delete the JSON file
-    Deletejson();
+                                    // Call the function to delete the JSON file
+                                         Deletejson();
+                                         
                             } catch (IOException exception) {
                                 exception.printStackTrace();
                             }
