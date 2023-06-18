@@ -161,8 +161,11 @@ public class VerificationBox extends javax.swing.JFrame {
                                                     rowJson.addProperty("MACAddress", mac);
                                                     rowJson.addProperty("Subscription", 1);
 
+                                                    JsonArray jsonArray1 = new JsonArray();
+                                                    jsonArray1.add(rowJson);
+
                                                     try (FileWriter fileWriter = new FileWriter(directoryPath2 + hashkey + "_verify.json")) {
-                                                        fileWriter.write(rowJson.toString());
+                                                        fileWriter.write(jsonArray1.toString());
                                                     } catch (IOException ex) {
                                                         ex.printStackTrace();
                                                     }
@@ -210,7 +213,7 @@ public class VerificationBox extends javax.swing.JFrame {
                             } catch (Exception execp) {
                                 JOptionPane.showMessageDialog(null, execp);
                             }
-                        }//GEN-LAST:event_deactivateButtonActionPerformed
+                        }
 
                         public void updateSubscription(String hashKey, int subscription) {
                             try {

@@ -117,9 +117,6 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="unText">
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="unTextActionPerformed"/>
-      </Events>
     </Component>
     <Component class="javax.swing.JTextField" name="sysIdText">
     </Component>
