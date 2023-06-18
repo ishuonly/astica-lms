@@ -15,11 +15,12 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -42,10 +43,8 @@ public class VerificationBox extends javax.swing.JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         show_user();
-
         verifyButton.setEnabled(false);
         deactivateButton.setEnabled(false);
-
     }
 
     public ArrayList<User> userdb() {
@@ -78,7 +77,7 @@ public class VerificationBox extends javax.swing.JFrame {
             row[1] = list.get(i).getSystemID();
             row[2] = list.get(i).getHash_Key();
 
-            String directoryPath = "F:\\Projects\\LicenseManagementSystem\\client_lic_files\\";
+            String directoryPath = "D:\\astica-lms\\client_lic_files\\";
             String VerifyfileName = list.get(i).getHash_Key() + "_verify.json";
             File vf = new File(directoryPath + VerifyfileName);
             String DeactivatefileName = list.get(i).getHash_Key() + "_deactivate.json";
@@ -129,7 +128,7 @@ public class VerificationBox extends javax.swing.JFrame {
 
                                                 String updateQuery = "UPDATE userdb SET MotherboardSN=?, CPU_ID=?, MACAddress=?, Subscription=? WHERE Hash_key=?";
 
-                                                try (Connection con = ConnectionProvider.getConn(); PreparedStatement pstmt = con.prepareStatement(updateQuery);) {
+                                                try (Connection con = ConnectionProviderS.getConn(); PreparedStatement pstmt = con.prepareStatement(updateQuery);) {
                                                     pstmt.setString(1, mothersn);
                                                     pstmt.setString(2, cpuid);
                                                     pstmt.setString(3, mac);
@@ -149,9 +148,10 @@ public class VerificationBox extends javax.swing.JFrame {
                                                 }
 
                                                 JOptionPane.showMessageDialog(null, "Verified and License Activated!");
+                                                
                                                 int v = 1;
                                                 if (v == 1) {
-                                                    String directoryPath2 = "F:\\Projects\\LicenseManagementSystem\\server_lic_files\\";
+                                                    String directoryPath2 = "D:\\astica-lms\\server_lic_files\\";
                                                     JsonObject rowJson = new JsonObject();
                                                     rowJson.addProperty("Username", username);
                                                     rowJson.addProperty("SystemID", sysid);
@@ -163,19 +163,26 @@ public class VerificationBox extends javax.swing.JFrame {
 
                                                     try (FileWriter fileWriter = new FileWriter(directoryPath2 + hashkey + "_verify.json")) {
                                                         fileWriter.write(rowJson.toString());
+                                                        
                                                     } catch (IOException ex) {
                                                         ex.printStackTrace();
                                                     }
-
+                                                 
                                                 }
+                                                
+                                                
                                             }
-                                        }
+                                               }
 
                                     }
                                 } else {
                                     System.out.println("Invalid JSON file format. Expected a JSON array.");
                                 }
+                                     // Close the FileReader to release the file resources
+    fileReader.close();
 
+    // Call the function to delete the JSON file
+    Deletejson();
                             } catch (IOException exception) {
                                 exception.printStackTrace();
                             }
@@ -198,11 +205,31 @@ public class VerificationBox extends javax.swing.JFrame {
                         }
                     });
                 }
+        
+        
             }
+            
 
         }
+      
+        }
+    public static void Deletejson(){
+      String filePath = "D:\\astica-lms\\client_lic_files\\88c7a228b52363e6d82b4875be72aad827298b2d9cae7de4e64a16e6ab05584f_verify.json";
+        
+        File jsonFile = new File(filePath);
+        
+        if (jsonFile.exists()) {
+            try {
+                Path path = Paths.get(filePath);
+                Files.delete(path);
+                System.out.println("JSON file deleted successfully.");
+            } catch (IOException e) {
+                System.out.println("Error occurred while deleting the JSON file: " + e.getMessage());
+            }
+        } else {
+            System.out.println("JSON file does not exist.");
+        }
     }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -305,6 +332,7 @@ public class VerificationBox extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new VerificationBox().setVisible(true);
+                
             }
         });
     }
