@@ -15,11 +15,12 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -42,10 +43,8 @@ public class VerificationBox extends javax.swing.JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         show_user();
-
         verifyButton.setEnabled(false);
         deactivateButton.setEnabled(false);
-
     }
 
     public ArrayList<User> userdb() {
@@ -149,6 +148,7 @@ public class VerificationBox extends javax.swing.JFrame {
                                                 }
 
                                                 JOptionPane.showMessageDialog(null, "Verified and License Activated!");
+
                                                 int v = 1;
                                                 if (v == 1) {
                                                     String directoryPath2 = "F:\\Projects\\LicenseManagementSystem\\server_lic_files\\";
@@ -165,12 +165,14 @@ public class VerificationBox extends javax.swing.JFrame {
                                                     jsonArray1.add(rowJson);
 
                                                     try (FileWriter fileWriter = new FileWriter(directoryPath2 + hashkey + "_verify.json")) {
-                                                        fileWriter.write(jsonArray1.toString());
+                                                        fileWriter.write(rowJson.toString());
+
                                                     } catch (IOException ex) {
                                                         ex.printStackTrace();
                                                     }
 
                                                 }
+
                                             }
                                         }
 
@@ -178,7 +180,11 @@ public class VerificationBox extends javax.swing.JFrame {
                                 } else {
                                     System.out.println("Invalid JSON file format. Expected a JSON array.");
                                 }
+                                // Close the FileReader to release the file resources
+                                fileReader.close();
 
+                                // Call the function to delete the JSON file
+                                Deletejson(directoryPath,VerifyfileName);
                             } catch (IOException exception) {
                                 exception.printStackTrace();
                             }
@@ -231,8 +237,28 @@ public class VerificationBox extends javax.swing.JFrame {
                     deactivateButton.addActionListener(dlistener);
 
                 }
+
             }
 
+        }
+
+    }
+
+    public static void Deletejson(String directoryPath , String VerifyfileName) {
+        String filePath = directoryPath + VerifyfileName;
+
+        File jsonFile = new File(filePath);
+
+        if (jsonFile.exists()) {
+            try {
+                Path path = Paths.get(filePath);
+                Files.delete(path);
+                System.out.println("JSON file deleted successfully.");
+            } catch (IOException e) {
+                System.out.println("Error occurred while deleting the JSON file: " + e.getMessage());
+            }
+        } else {
+            System.out.println("JSON file does not exist.");
         }
     }
 
@@ -338,6 +364,7 @@ public class VerificationBox extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new VerificationBox().setVisible(true);
+
             }
         });
     }
