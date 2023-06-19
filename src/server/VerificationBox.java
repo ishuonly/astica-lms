@@ -165,7 +165,7 @@ public class VerificationBox extends javax.swing.JFrame {
                                                     jsonArray1.add(rowJson);
 
                                                     try (FileWriter fileWriter = new FileWriter(directoryPath2 + hashkey + "_verify.json")) {
-                                                        fileWriter.write(rowJson.toString());
+                                                        fileWriter.write(jsonArray1.toString());
 
                                                     } catch (IOException ex) {
                                                         ex.printStackTrace();
@@ -185,6 +185,7 @@ public class VerificationBox extends javax.swing.JFrame {
 
                                 // Call the function to delete the JSON file
                                 Deletejson(directoryPath,VerifyfileName);
+                                verifyButton.setEnabled(false);
                             } catch (IOException exception) {
                                 exception.printStackTrace();
                             }
@@ -224,16 +225,22 @@ public class VerificationBox extends javax.swing.JFrame {
                         public void updateSubscription(String hashKey, int subscription) {
                             try {
                                 Connection con = ConnectionProviderS.getConn();
-                                String query = "UPDATE userdb SET Subscription = ? WHERE Hash_Key = ?";
+                                String query = "UPDATE userdb SET MotherboardSN=?, CPU_ID=?, MACAddress=?, Subscription = ? WHERE Hash_Key = ?";
                                 PreparedStatement preparedStatement = con.prepareStatement(query);
-                                preparedStatement.setInt(1, subscription);
-                                preparedStatement.setString(2, hashKey);
+                                preparedStatement.setString(1,null);
+                                preparedStatement.setString(2, null);
+                                preparedStatement.setString(3, null);
+                                preparedStatement.setInt(4, subscription);
+                                preparedStatement.setString(5, hashKey);
                                 preparedStatement.executeUpdate();
                             } catch (Exception e) {
                                 JOptionPane.showMessageDialog(null, e);
                             }
+                            Deletejson(directoryPath,DeactivatefileName);
+                            deactivateButton.setEnabled(false);
                         }
                     };
+          
                     deactivateButton.addActionListener(dlistener);
 
                 }
@@ -244,8 +251,8 @@ public class VerificationBox extends javax.swing.JFrame {
 
     }
 
-    public static void Deletejson(String directoryPath , String VerifyfileName) {
-        String filePath = directoryPath + VerifyfileName;
+    public static void Deletejson(String directoryPath , String fileName) {
+        String filePath = directoryPath + fileName;
 
         File jsonFile = new File(filePath);
 

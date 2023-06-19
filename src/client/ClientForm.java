@@ -19,6 +19,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.swing.JOptionPane;
 
 /**
@@ -71,14 +74,14 @@ public class ClientForm extends javax.swing.JFrame {
 
         sysIdLabel.setText("SYSTEM ID");
 
-        activate.setText("ACTIVATE LISCENSE");
+        activate.setText("Generate Activate License File");
         activate.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 activateActionPerformed(evt);
             }
         });
 
-        deactivate.setText("DEACTIVATE LISCENSE");
+        deactivate.setText("Generate Deactivate License File");
         deactivate.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 deactivateActionPerformed(evt);
@@ -92,29 +95,24 @@ public class ClientForm extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addGap(66, 66, 66)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(unLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(sysIdLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(keyLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 70, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(66, 66, 66)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(unLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(sysIdLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(keyLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(36, 36, 36)
-                        .addComponent(activate)))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(39, 39, 39)
-                        .addComponent(deactivate)
-                        .addContainerGap(46, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(keyText, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(sysIdText, javax.swing.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE)
-                                .addComponent(unText)))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                    .addComponent(keyText, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(sysIdText, javax.swing.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE)
+                        .addComponent(unText)))
+                .addContainerGap(24, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(98, 98, 98)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(activate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(deactivate, javax.swing.GroupLayout.DEFAULT_SIZE, 216, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -131,11 +129,11 @@ public class ClientForm extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(keyLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(keyText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(37, 37, 37)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(activate)
-                    .addComponent(deactivate))
-                .addContainerGap(71, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 47, Short.MAX_VALUE)
+                .addComponent(activate)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(deactivate)
+                .addGap(22, 22, 22))
         );
 
         pack();
@@ -200,15 +198,28 @@ public class ClientForm extends javax.swing.JFrame {
         rowJson.addProperty("CPU_ID", cpu);
         rowJson.addProperty("MACAddress", mac);
         rowJson.addProperty("Subscription", subs);
-        
+
         JsonArray jsonArray = new JsonArray();
         jsonArray.add(rowJson);
 
-        try (FileWriter fileWriter = new FileWriter(directoryPath2 + key + "_verify.json")) {
-            fileWriter.write(jsonArray.toString());
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        if (subs == 1) {
+            try (FileWriter fileWriter = new FileWriter(directoryPath2 + key + "_deactivate.json")) {
+                fileWriter.write(jsonArray.toString());
+                deactivate.setText("Deactivate License");
+                JOptionPane.showMessageDialog(null, "License File Generated");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        } else if (subs == 0) {
+            try (FileWriter fileWriter = new FileWriter(directoryPath2 + key + "_verify.json")) {
+                fileWriter.write(jsonArray.toString());
+                activate.setText("Activate License");
+                JOptionPane.showMessageDialog(null, "License File Generated");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
+
     }
 
     public void checkActivation(String un, String sysId, String key, String mac, String cpu, String motherboard) {
@@ -245,38 +256,40 @@ public class ClientForm extends javax.swing.JFrame {
                                     int rowsAffected = pstmt.executeUpdate();
 
                                     if (rowsAffected > 0) {
-                                        JOptionPane.showMessageDialog(null, "Database row updated successfully");
+                                        JOptionPane.showMessageDialog(null, "License Activated!");
                                     } else {
-                                        JOptionPane.showMessageDialog(null, "Failed to update the database row");
+                                        JOptionPane.showMessageDialog(null, "Failed to activate license");
                                     }
 
                                 } catch (Exception excep) {
                                     JOptionPane.showMessageDialog(null, excep);
                                 }
 
-                                JOptionPane.showMessageDialog(null, "License Activated!");
                             }
                         }
 
                     }
+
                 } else {
                     System.out.println("Invalid JSON file format. Expected a JSON array.");
                 }
+                fileReader.close();
+                Deletejson(directoryPath, VerifyfileName);
 
             } catch (IOException exception) {
                 exception.printStackTrace();
             }
         }
     }
-    
+
     public void checkDeactivation(String un, String sysId, String key, String mac, String cpu, String motherboard) {
         String directoryPath1 = "src\\server_lic_files\\";
-        String VerifyfileName = key + "_verify.json";
-        File df = new File(directoryPath1 + VerifyfileName);
+        String fileName = key + "_deactivate.json";
+        File df = new File(directoryPath1 + fileName);
 //        System.out.println(directoryPath + VerifyfileName);
         if (df.exists()) {
             JsonElement jsonElement;
-            try (FileReader fileReader = new FileReader(directoryPath1 + VerifyfileName)) {
+            try (FileReader fileReader = new FileReader(directoryPath1 + fileName)) {
                 jsonElement = JsonParser.parseReader(fileReader);
 
                 if (jsonElement.isJsonArray()) {
@@ -294,7 +307,31 @@ public class ClientForm extends javax.swing.JFrame {
 
                             if (username.equals(un) && sysid.equals(sysId) && hashkey.equals(key) && mothersn.equals(motherboard) && cpuid.equals(cpu) && macid.equals(mac)) {
 
-                                //Deletion and updation code here
+                                try {
+                                    Connection con = ConnectionProviderC.getConn();
+                                    String updateQuery = "UPDATE userdb SET MotherboardSN=?, CPU_ID=?, MACAddress=?, Subscription = ? WHERE Hash_Key = ?";
+
+                                    PreparedStatement pstmt = con.prepareStatement(updateQuery);
+                                    pstmt.setString(1, null);
+                                    pstmt.setString(2, null);
+                                    pstmt.setString(3, null);
+                                    pstmt.setInt(4, 0); // Set Subscription to 0 (deactivated)
+                                    pstmt.setString(4, hashkey);
+
+                                    int rowsAffected = pstmt.executeUpdate();
+
+                                    if (rowsAffected > 0) {
+                                        Deletejson(directoryPath1, fileName);
+                                        JOptionPane.showMessageDialog(null, "License Deactivated!");
+                                    } else {
+                                        JOptionPane.showMessageDialog(null, "Failed to deactivate the license");
+                                    }
+
+                                    pstmt.close();
+                                    con.close();
+                                } catch (SQLException e) {
+                                    e.printStackTrace();
+                                }
 
                                 JOptionPane.showMessageDialog(null, "License Deactivated!");
                             }
@@ -308,6 +345,24 @@ public class ClientForm extends javax.swing.JFrame {
             } catch (IOException exception) {
                 exception.printStackTrace();
             }
+        }
+    }
+
+    public static void Deletejson(String directoryPath, String fileName) {
+        String filePath = directoryPath + fileName;
+
+        File jsonFile = new File(filePath);
+
+        if (jsonFile.exists()) {
+            try {
+                Path path = Paths.get(filePath);
+                Files.delete(path);
+                System.out.println("JSON file deleted successfully.");
+            } catch (IOException e) {
+                System.out.println("Error occurred while deleting the JSON file: " + e.getMessage());
+            }
+        } else {
+            System.out.println("JSON file does not exist.");
         }
     }
 

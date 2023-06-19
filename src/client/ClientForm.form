@@ -42,38 +42,29 @@
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
+              <EmptySpace min="-2" pref="66" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="1" attributes="0">
+                  <Component id="unLabel" min="-2" pref="117" max="-2" attributes="0"/>
+                  <Component id="sysIdLabel" min="-2" pref="117" max="-2" attributes="0"/>
+                  <Component id="keyLabel" alignment="1" min="-2" pref="117" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace pref="70" max="32767" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="66" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="unLabel" min="-2" pref="117" max="-2" attributes="0"/>
-                          <Component id="sysIdLabel" min="-2" pref="117" max="-2" attributes="0"/>
-                          <Component id="keyLabel" alignment="1" min="-2" pref="117" max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="36" max="-2" attributes="0"/>
-                      <Component id="activate" min="-2" max="-2" attributes="0"/>
+                  <Component id="keyText" min="-2" pref="149" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                      <Component id="sysIdText" pref="152" max="32767" attributes="0"/>
+                      <Component id="unText" max="32767" attributes="0"/>
                   </Group>
               </Group>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
-                      <EmptySpace min="-2" pref="39" max="-2" attributes="0"/>
-                      <Component id="deactivate" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="46" max="32767" attributes="0"/>
-                  </Group>
-                  <Group type="102" attributes="0">
-                      <EmptySpace max="32767" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="keyText" min="-2" pref="149" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                              <Component id="sysIdText" pref="152" max="32767" attributes="0"/>
-                              <Component id="unText" max="32767" attributes="0"/>
-                          </Group>
-                      </Group>
-                      <EmptySpace max="32767" attributes="0"/>
-                  </Group>
+              <EmptySpace pref="24" max="32767" attributes="0"/>
+          </Group>
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace min="-2" pref="98" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                  <Component id="activate" max="32767" attributes="0"/>
+                  <Component id="deactivate" pref="216" max="32767" attributes="0"/>
               </Group>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -95,12 +86,11 @@
                   <Component id="keyLabel" alignment="3" min="-2" pref="28" max="-2" attributes="0"/>
                   <Component id="keyText" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" pref="37" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="activate" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="deactivate" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace pref="71" max="32767" attributes="0"/>
+              <EmptySpace pref="47" max="32767" attributes="0"/>
+              <Component id="activate" min="-2" max="-2" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <Component id="deactivate" min="-2" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -122,7 +112,7 @@
     </Component>
     <Component class="javax.swing.JButton" name="activate">
       <Properties>
-        <Property name="text" type="java.lang.String" value="ACTIVATE LISCENSE"/>
+        <Property name="text" type="java.lang.String" value="Generate Activate License File"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="activateActionPerformed"/>
@@ -130,7 +120,7 @@
     </Component>
     <Component class="javax.swing.JButton" name="deactivate">
       <Properties>
-        <Property name="text" type="java.lang.String" value="DEACTIVATE LISCENSE"/>
+        <Property name="text" type="java.lang.String" value="Generate Deactivate License File"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="deactivateActionPerformed"/>
