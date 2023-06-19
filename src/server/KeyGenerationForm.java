@@ -1,4 +1,3 @@
-
 package server;
 
 import javax.swing.*;
@@ -8,22 +7,21 @@ import java.awt.event.ActionListener;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import databases.ConnectionProviderS;
 
-
 public class KeyGenerationForm extends JFrame {
+
     private JTextField textField1;
     private JTextField textField2;
     private JButton hashButton;
     private JTextField resultField;
-     private JButton saveToDbButton;
+    private JButton saveToDbButton;
 
     public KeyGenerationForm() {
-         setTitle("Key Generation Form");
+        setTitle("Key Generation Form");
         setSize(500, 350);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -60,9 +58,9 @@ public class KeyGenerationForm extends JFrame {
 
         panel3.add(hashButton);
         panel3.add(resultField);
-        
-        panel3.setBorder(BorderFactory.createEmptyBorder(0,0, 0, 0));
-        
+
+        panel3.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+
         panel4.add(saveToDbButton);
         panel4.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
@@ -74,11 +72,11 @@ public class KeyGenerationForm extends JFrame {
         add(panel2);
         add(panel3);
         add(panel4);
-    
+
         hashButton.setBackground(new Color(0, 0, 255)); // Lightish blue color
         hashButton.setForeground(new Color(255, 255, 255)); // Lightish blue color
         saveToDbButton.setBackground(new Color(255, 153, 0)); // Orange color
-saveToDbButton.setForeground(new Color(255, 255, 255));
+        saveToDbButton.setForeground(new Color(255, 255, 255));
 
         // Add action listener to the button
         hashButton.addActionListener(new ActionListener() {
@@ -93,7 +91,7 @@ saveToDbButton.setForeground(new Color(255, 255, 255));
                 saveToDatabase(str1, str2, hashedResult);
             }
         });
-        
+
         // Add action listener to the save to DB button
         saveToDbButton.addActionListener(new ActionListener() {
             @Override
@@ -125,11 +123,6 @@ saveToDbButton.setForeground(new Color(255, 255, 255));
     }
 
     public void saveToDatabase(String un, String sysId, String key) {
-//        Modify the connection details as per your database configuration
-//        String url = "jdbc:mysql://localhost:3306/serverdb?zeroDateTimeBehavior=CONVERT_TO_NULL";
-////        String username = "root";
-////        String password = "dubey123";
-
         try {
             Connection con = ConnectionProviderS.getConn();
             String query = "INSERT INTO userdb (Username, SystemID, Hash_key, Subscription) VALUES (?, ?, ?, ?)";
@@ -138,7 +131,7 @@ saveToDbButton.setForeground(new Color(255, 255, 255));
             preparedStatement.setString(1, un);
             preparedStatement.setString(2, sysId);
             preparedStatement.setString(3, key);
-             preparedStatement.setInt(4, 0);
+            preparedStatement.setInt(4, 0);
             preparedStatement.executeUpdate();
             preparedStatement.close();
             con.close();

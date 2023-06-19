@@ -77,7 +77,7 @@ public class VerificationBox extends javax.swing.JFrame {
             row[1] = list.get(i).getSystemID();
             row[2] = list.get(i).getHash_Key();
 
-            String directoryPath = "F:\\Projects\\LicenseManagementSystem\\client_lic_files\\";
+            String directoryPath = "src\\client_lic_files\\";
             String VerifyfileName = list.get(i).getHash_Key() + "_verify.json";
             File vf = new File(directoryPath + VerifyfileName);
             String DeactivatefileName = list.get(i).getHash_Key() + "_deactivate.json";
@@ -151,7 +151,7 @@ public class VerificationBox extends javax.swing.JFrame {
 
                                                 int v = 1;
                                                 if (v == 1) {
-                                                    String directoryPath2 = "F:\\Projects\\LicenseManagementSystem\\server_lic_files\\";
+                                                    String directoryPath2 = "src\\server_lic_files\\";
                                                     JsonObject rowJson = new JsonObject();
                                                     rowJson.addProperty("Username", username);
                                                     rowJson.addProperty("SystemID", sysid);

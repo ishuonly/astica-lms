@@ -3,7 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/F:/Projects/LicenseManagementSystem/src/client/ClientForm.java</file>
+            <file>file:/F:/Projects/LicenseManagementSystem/src/databases/ClientTable.java</file>
+            <file>file:/F:/Projects/LicenseManagementSystem/src/server/KeyGenerationForm.java</file>
             <file>file:/F:/Projects/LicenseManagementSystem/src/server/VerificationBox.java</file>
+            <file>file:/F:/Projects/LicenseManagementSystem/src/login/loginform.java</file>
         </group>
     </open-files>
 </project-private>

@@ -191,7 +191,7 @@ public class ClientForm extends javax.swing.JFrame {
     }
 
     public void saveToJson(String un, String sysId, String key, String mac, String cpu, String motherboard, int subs) {
-        String directoryPath2 = "F:\\Projects\\LicenseManagementSystem\\client_lic_files\\";
+        String directoryPath2 = "src\\client_lic_files\\";
         JsonObject rowJson = new JsonObject();
         rowJson.addProperty("Username", un);
         rowJson.addProperty("SystemID", sysId);
@@ -212,7 +212,7 @@ public class ClientForm extends javax.swing.JFrame {
     }
 
     public void checkActivation(String un, String sysId, String key, String mac, String cpu, String motherboard) {
-        String directoryPath = "F:\\Projects\\LicenseManagementSystem\\server_lic_files\\";
+        String directoryPath = "src\\server_lic_files\\";
         String VerifyfileName = key + "_verify.json";
         File vf = new File(directoryPath + VerifyfileName);
 //        System.out.println(directoryPath + VerifyfileName);
@@ -270,7 +270,7 @@ public class ClientForm extends javax.swing.JFrame {
     }
     
     public void checkDeactivation(String un, String sysId, String key, String mac, String cpu, String motherboard) {
-        String directoryPath1 = "F:\\Projects\\LicenseManagementSystem\\server_lic_files\\";
+        String directoryPath1 = "src\\server_lic_files\\";
         String VerifyfileName = key + "_verify.json";
         File df = new File(directoryPath1 + VerifyfileName);
 //        System.out.println(directoryPath + VerifyfileName);
