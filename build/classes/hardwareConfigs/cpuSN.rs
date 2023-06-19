@@ -1,2 +1,0 @@
-cpuSN
-GFG
