@@ -306,8 +306,16 @@ public class VerificationBox extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(jTable1);
 
+        verifyButton.setBackground(new java.awt.Color(51, 255, 51));
+        verifyButton.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        verifyButton.setForeground(new java.awt.Color(255, 255, 255));
+        verifyButton.setIcon(new javax.swing.ImageIcon("C:\\Users\\ACER\\Downloads\\project Image\\project Image\\submit.png")); // NOI18N
         verifyButton.setText("Verify");
 
+        deactivateButton.setBackground(new java.awt.Color(255, 51, 51));
+        deactivateButton.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        deactivateButton.setForeground(new java.awt.Color(255, 255, 255));
+        deactivateButton.setIcon(new javax.swing.ImageIcon("C:\\Users\\ACER\\Downloads\\project Image\\project Image\\cancel1.png")); // NOI18N
         deactivateButton.setText("Deactivate");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -316,15 +324,11 @@ public class VerificationBox extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 579, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(verifyButton)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
-                        .addComponent(deactivateButton)
-                        .addContainerGap())))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(deactivateButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(verifyButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
