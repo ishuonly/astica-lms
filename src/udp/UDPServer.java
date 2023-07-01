@@ -10,7 +10,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import javax.swing.JOptionPane;
 
 public class UDPServer {
@@ -38,33 +37,62 @@ public class UDPServer {
         }
     }
 
-    public static int checkVerification(String hashKey, String username, String systemID, int subscription) {
-        if (subscription == 1) {
-            
-            return 0;
-        } else {
-            return 1;
-        }
-    }
-
-    private static boolean checkHashKeyInDatabase(String hashKey) {
-
+    public static int checkVerification(String hashKey, String username, String systemID, String motherboardSN, String cpuID, String macAddress, int subscription) {
         try {
             Connection con = ConnectionProviderS.getConn();
-            String query = "SELECT COUNT(*) FROM userdb WHERE Hash_Key = ?";
+            String query = "SELECT Username, SystemID FROM userdb WHERE Hash_Key = ?";
             PreparedStatement statement = con.prepareStatement(query);
             statement.setString(1, hashKey);
             ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
-                int count = resultSet.getInt(1);
-                return count > 0;
+                String storedUsername = resultSet.getString("Username");
+                String storedSystemID = resultSet.getString("SystemID");
+
+                if (username.equals(storedUsername) && systemID.equals(storedSystemID)) {
+                    if (subscription == 1) {
+                        //deactivation code here
+                        try {
+                            String query1 = "UPDATE userdb SET MotherboardSN=?, CPU_ID=?, MACAddress=?, Subscription = ? WHERE Hash_Key = ?";
+                            PreparedStatement preparedStatement = con.prepareStatement(query1);
+                            preparedStatement.setString(1, null);
+                            preparedStatement.setString(2, null);
+                            preparedStatement.setString(3, null);
+                            preparedStatement.setInt(4, 0);
+                            preparedStatement.setString(5, hashKey);
+                            preparedStatement.executeUpdate();
+                        } catch (Exception e) {
+                            JOptionPane.showMessageDialog(null, e);
+                        }
+                        return 0;
+                    } else {
+                        //activation code here
+                        try {
+                            String query2 = "UPDATE userdb SET MotherboardSN=?, CPU_ID=?, MACAddress=?, Subscription = ? WHERE Hash_Key = ?";
+                            PreparedStatement preparedStatement = con.prepareStatement(query2);
+                            preparedStatement.setString(1, motherboardSN);
+                            preparedStatement.setString(2, cpuID);
+                            preparedStatement.setString(3, macAddress);
+                            preparedStatement.setInt(4, 1);
+                            preparedStatement.setString(5, hashKey);
+                            preparedStatement.executeUpdate();
+                        } catch (Exception e) {
+                            JOptionPane.showMessageDialog(null, e);
+                        }
+                        return 1;
+                    }
+                } else {
+                    //user not verified(details don't match)
+                    return -1;
+                }
+            } else {
+                // Hash_Key does not exist in the database
+                return -1;
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        return false;
+        return -1;
     }
 
     public static void main(String a[]) throws Exception {
@@ -86,33 +114,12 @@ public class UDPServer {
         String macAddress = jsonObject.get("MACAddress").getAsString();
         int subscription = jsonObject.get("Subscription").getAsInt();
 
-        // Check if Hash_Key exists in the database
-        boolean hashKeyExists = checkHashKeyInDatabase(hashKey);
-
-        if (hashKeyExists) {
-            int response = checkVerification(hashKey, username, systemID, subscription);
-            byte[] responseBytes = String.valueOf(response).getBytes();
-            InetAddress clientAddress = dp.getAddress();
-            int clientPort = dp.getPort();
-            DatagramPacket responsePacket = new DatagramPacket(responseBytes, responseBytes.length, clientAddress, clientPort);
-            ds.send(responsePacket);
-        } else {
-            int response = -1;
-            byte[] responseBytes = String.valueOf(response).getBytes();
-            InetAddress clientAddress = dp.getAddress();
-            int clientPort = dp.getPort();
-            DatagramPacket responsePacket = new DatagramPacket(responseBytes, responseBytes.length, clientAddress, clientPort);
-            ds.send(responsePacket);
-        }
-
-//        // Print retrieved information
-//        System.out.println("Username: " + username);
-//        System.out.println("SystemID: " + systemID);
-//        System.out.println("Hash_Key: " + hashKey);
-//        System.out.println("MotherboardSN: " + motherboardSN);
-//        System.out.println("CPU_ID: " + cpuID);
-//        System.out.println("MACAddress: " + macAddress);
-//        System.out.println("Subscription: " + subscription);
+        int response = checkVerification(hashKey, username, systemID, motherboardSN, cpuID, macAddress, subscription);
+        byte[] responseBytes = String.valueOf(response).getBytes();
+        InetAddress clientAddress = dp.getAddress();
+        int clientPort = dp.getPort();
+        DatagramPacket responsePacket = new DatagramPacket(responseBytes, responseBytes.length, clientAddress, clientPort);
+        ds.send(responsePacket);
     }
 
 }
