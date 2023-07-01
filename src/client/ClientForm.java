@@ -235,6 +235,8 @@ public class ClientForm extends javax.swing.JFrame {
                     JOptionPane.showMessageDialog(null, "License Activated Successfully");
                 } else if (subsVal == 0) {
                     JOptionPane.showMessageDialog(null, "License Deactivated Successfully");
+                } else{
+                    JOptionPane.showMessageDialog(null, "User not registered");
                 }
                 System.out.println("Server response: " + response);
             }

@@ -14,7 +14,7 @@ import java.sql.Statement;
 import javax.swing.JOptionPane;
 
 public class UDPServer {
-    
+
     public void saveToDatabase(String un, String sysId, String key, String mac, String cpu, String motherboard) {
 
         try {
@@ -38,13 +38,33 @@ public class UDPServer {
         }
     }
 
-    public static int checkVerification(int subscription) {
-        if(subscription==1){
+    public static int checkVerification(String hashKey, String username, String systemID, int subscription) {
+        if (subscription == 1) {
+            
             return 0;
-        }
-        else{
+        } else {
             return 1;
         }
+    }
+
+    private static boolean checkHashKeyInDatabase(String hashKey) {
+
+        try {
+            Connection con = ConnectionProviderS.getConn();
+            String query = "SELECT COUNT(*) FROM userdb WHERE Hash_Key = ?";
+            PreparedStatement statement = con.prepareStatement(query);
+            statement.setString(1, hashKey);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                int count = resultSet.getInt(1);
+                return count > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
     public static void main(String a[]) throws Exception {
@@ -66,24 +86,33 @@ public class UDPServer {
         String macAddress = jsonObject.get("MACAddress").getAsString();
         int subscription = jsonObject.get("Subscription").getAsInt();
 
-        // Print retrieved information
-        System.out.println("Username: " + username);
-        System.out.println("SystemID: " + systemID);
-        System.out.println("Hash_Key: " + hashKey);
-        System.out.println("MotherboardSN: " + motherboardSN);
-        System.out.println("CPU_ID: " + cpuID);
-        System.out.println("MACAddress: " + macAddress);
-        System.out.println("Subscription: " + subscription);
-        
-        
+        // Check if Hash_Key exists in the database
+        boolean hashKeyExists = checkHashKeyInDatabase(hashKey);
 
-        // Prepare response
-        int response = checkVerification(subscription);
-        byte[] responseBytes = String.valueOf(response).getBytes();
-        InetAddress clientAddress = dp.getAddress();
-        int clientPort = dp.getPort();
-        DatagramPacket responsePacket = new DatagramPacket(responseBytes, responseBytes.length, clientAddress, clientPort);
-        ds.send(responsePacket);
+        if (hashKeyExists) {
+            int response = checkVerification(hashKey, username, systemID, subscription);
+            byte[] responseBytes = String.valueOf(response).getBytes();
+            InetAddress clientAddress = dp.getAddress();
+            int clientPort = dp.getPort();
+            DatagramPacket responsePacket = new DatagramPacket(responseBytes, responseBytes.length, clientAddress, clientPort);
+            ds.send(responsePacket);
+        } else {
+            int response = -1;
+            byte[] responseBytes = String.valueOf(response).getBytes();
+            InetAddress clientAddress = dp.getAddress();
+            int clientPort = dp.getPort();
+            DatagramPacket responsePacket = new DatagramPacket(responseBytes, responseBytes.length, clientAddress, clientPort);
+            ds.send(responsePacket);
+        }
+
+//        // Print retrieved information
+//        System.out.println("Username: " + username);
+//        System.out.println("SystemID: " + systemID);
+//        System.out.println("Hash_Key: " + hashKey);
+//        System.out.println("MotherboardSN: " + motherboardSN);
+//        System.out.println("CPU_ID: " + cpuID);
+//        System.out.println("MACAddress: " + macAddress);
+//        System.out.println("Subscription: " + subscription);
     }
 
 }
