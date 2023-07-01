@@ -4,6 +4,7 @@
  */
 package client;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -19,6 +20,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -189,7 +193,6 @@ public class ClientForm extends javax.swing.JFrame {
     }
 
     public void saveToJson(String un, String sysId, String key, String mac, String cpu, String motherboard, int subs) {
-        String directoryPath2 = "src\\client_lic_files\\";
         JsonObject rowJson = new JsonObject();
         rowJson.addProperty("Username", un);
         rowJson.addProperty("SystemID", sysId);
@@ -199,27 +202,48 @@ public class ClientForm extends javax.swing.JFrame {
         rowJson.addProperty("MACAddress", mac);
         rowJson.addProperty("Subscription", subs);
 
-        JsonArray jsonArray = new JsonArray();
-        jsonArray.add(rowJson);
+        Gson gson = new Gson();
+        String jsonString = gson.toJson(rowJson);
 
-        if (subs == 1) {
-            try (FileWriter fileWriter = new FileWriter(directoryPath2 + key + "_deactivate.json")) {
-                fileWriter.write(jsonArray.toString());
-                deactivate.setText("Deactivate License");
-                JOptionPane.showMessageDialog(null, "License File Generated");
-            } catch (IOException ex) {
-                ex.printStackTrace();
+        try {
+            // Convert JSON data to byte array
+            byte[] sendData = jsonString.getBytes();
+
+            // Destination IP address and port number
+            InetAddress serverAddress = InetAddress.getLocalHost();
+            int serverPort = 9999;
+
+            // Create UDP socket
+            try (DatagramSocket socket = new DatagramSocket()) {
+                // Create datagram packet with the JSON data
+                DatagramPacket packet = new DatagramPacket(sendData, sendData.length, serverAddress, serverPort);
+
+                // Send the datagram packet
+                socket.send(packet);
+
+                System.out.println("JSON data sent over UDP.");
+
+                byte[] receiveData = new byte[1024];
+                DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+
+                // Receive the response from the server
+                socket.receive(receivePacket);
+
+                String response = new String(receivePacket.getData(), 0, receivePacket.getLength());
+                int subsVal = Integer.parseInt(response.trim());
+                if (subsVal == 1) {
+                    JOptionPane.showMessageDialog(null, "License Activated Successfully");
+                } else if (subsVal == 0) {
+                    JOptionPane.showMessageDialog(null, "License Deactivated Successfully");
+                }
+                System.out.println("Server response: " + response);
             }
-        } else if (subs == 0) {
-            try (FileWriter fileWriter = new FileWriter(directoryPath2 + key + "_verify.json")) {
-                fileWriter.write(jsonArray.toString());
-                activate.setText("Activate License");
-                JOptionPane.showMessageDialog(null, "License File Generated");
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+
+            // Display a success message
+//                JOptionPane.showMessageDialog(null, "License File Generated");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
     }
 
     public void checkActivation(String un, String sysId, String key, String mac, String cpu, String motherboard) {

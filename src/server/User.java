@@ -1,16 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package server;
 
-/**
- *
- * @author ASUS
- */
-class User {
-    private String Username, SystemID, Hash_Key, MotherboardSN, CPU_ID, MACAddress;
-    private int Subscription;
+public class User {
+    public String Username, SystemID, Hash_Key, MotherboardSN, CPU_ID, MACAddress;
+    public int Subscription;
 
     public User(String Username, String SystemID, String Hash_Key, String MotherboardSN, String CPU_ID, String MACAddress, int Subscription ){
         this.Username = Username;
