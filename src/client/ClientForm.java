@@ -73,12 +73,10 @@ public class ClientForm extends javax.swing.JFrame {
 
         unLabel.setBackground(new java.awt.Color(255, 255, 255));
         unLabel.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        unLabel.setIcon(new javax.swing.ImageIcon("C:\\Users\\ACER\\Downloads\\project Image\\project Image\\account.png")); // NOI18N
         unLabel.setText("USERNAME :");
         unLabel.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
         sysIdLabel.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        sysIdLabel.setIcon(new javax.swing.ImageIcon("C:\\Users\\ACER\\Downloads\\project Image\\project Image\\home.png")); // NOI18N
         sysIdLabel.setText("SYSTEM ID:");
         sysIdLabel.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
@@ -104,7 +102,6 @@ public class ClientForm extends javax.swing.JFrame {
 
         keyLabel.setBackground(new java.awt.Color(255, 102, 102));
         keyLabel.setFont(new java.awt.Font("Segoe UI", 3, 14)); // NOI18N
-        keyLabel.setIcon(new javax.swing.ImageIcon("C:\\Users\\ACER\\Downloads\\project Image\\project Image\\key.png")); // NOI18N
         keyLabel.setText("KEY");
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -145,13 +142,14 @@ public class ClientForm extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(18, 18, 18)
                 .addComponent(jLabel1)
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(4, 4, 4)
-                        .addComponent(unText))
-                    .addComponent(unLabel))
-                .addGap(21, 21, 21)
+                        .addGap(22, 22, 22)
+                        .addComponent(unText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(unLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(sysIdLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
