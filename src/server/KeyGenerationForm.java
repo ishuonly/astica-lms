@@ -25,6 +25,8 @@ public class KeyGenerationForm extends JFrame {
         setSize(500, 350);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        ImageIcon icon = new ImageIcon("src/Images/half-logo-icon.png");
+        setIconImage(icon.getImage());
 
         // Create panels
         JPanel panel1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
