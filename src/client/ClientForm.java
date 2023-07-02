@@ -200,6 +200,8 @@ public class ClientForm extends javax.swing.JFrame {
         String mac = MACAddress.getMAC();
         String cpu = cpuSN.getWindowsCPU_SerialNumber();
         String motherboard = motherboardSN.getmotherboardSN();
+        
+        saveToDatabase(un, sysId, key, mac, cpu, motherboard);
 
         try {
             Connection con = ConnectionProviderC.getConn();
@@ -213,8 +215,7 @@ public class ClientForm extends javax.swing.JFrame {
 
                 if (storedSubs == 1) {
                     JOptionPane.showMessageDialog(null, "License already activated!");
-                } else {
-                    saveToDatabase(un, sysId, key, mac, cpu, motherboard);
+                } else {                    
                     udpClient(un, sysId, key, mac, cpu, motherboard, 0);
                 }
             }
@@ -332,9 +333,6 @@ public class ClientForm extends javax.swing.JFrame {
                 }
                 System.out.println("Server response: " + response);
             }
-
-            // Display a success message
-//                JOptionPane.showMessageDialog(null, "License File Generated");
         } catch (IOException e) {
             e.printStackTrace();
         }
