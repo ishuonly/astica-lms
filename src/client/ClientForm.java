@@ -1,4 +1,3 @@
-
 package client;
 
 import com.google.gson.Gson;
@@ -16,10 +15,9 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
-
+import java.sql.ResultSet;
 
 public class ClientForm extends javax.swing.JFrame {
-
 
     public ClientForm() {
         initComponents();
@@ -137,8 +135,28 @@ public class ClientForm extends javax.swing.JFrame {
         String mac = MACAddress.getMAC();
         String cpu = cpuSN.getWindowsCPU_SerialNumber();
         String motherboard = motherboardSN.getmotherboardSN();
+        
+        try {
+            Connection con = ConnectionProviderC.getConn();
+            String querya = "SELECT Subscription FROM userdb WHERE Hash_Key = ?";
+            PreparedStatement statement = con.prepareStatement(querya);
+            statement.setString(1, key);
+            ResultSet resultSet = statement.executeQuery();
 
-        udpClient(un, sysId, key, mac, cpu, motherboard, 1);
+            if (resultSet.next()) {
+                int storedSubs = resultSet.getInt("Subscription");
+
+                if (storedSubs == 0) {
+                    JOptionPane.showMessageDialog(null, "License already deactivated!");
+                } else {
+                    udpClient(un, sysId, key, mac, cpu, motherboard, 1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        
     }//GEN-LAST:event_deactivateActionPerformed
 
     private void activateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_activateActionPerformed
@@ -150,8 +168,26 @@ public class ClientForm extends javax.swing.JFrame {
         String cpu = cpuSN.getWindowsCPU_SerialNumber();
         String motherboard = motherboardSN.getmotherboardSN();
 
-        saveToDatabase(un, sysId, key, mac, cpu, motherboard);
-        udpClient(un, sysId, key, mac, cpu, motherboard, 0);
+        try {
+            Connection con = ConnectionProviderC.getConn();
+            String querya = "SELECT Subscription FROM userdb WHERE Hash_Key = ?";
+            PreparedStatement statement = con.prepareStatement(querya);
+            statement.setString(1, key);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                int storedSubs = resultSet.getInt("Subscription");
+
+                if (storedSubs == 1) {
+                    JOptionPane.showMessageDialog(null, "License already activated!");
+                } else {
+                    saveToDatabase(un, sysId, key, mac, cpu, motherboard);
+                    udpClient(un, sysId, key, mac, cpu, motherboard, 0);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }//GEN-LAST:event_activateActionPerformed
     public void saveToDatabase(String un, String sysId, String key, String mac, String cpu, String motherboard) {
 
@@ -270,7 +306,7 @@ public class ClientForm extends javax.swing.JFrame {
             e.printStackTrace();
         }
     }
-           
+
     /**
      * @param args the command line arguments
      */
