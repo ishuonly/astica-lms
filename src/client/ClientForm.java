@@ -1,8 +1,14 @@
-
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
+ */
 package client;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import databases.ConnectionProviderC;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -22,21 +28,19 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
-
+/**
+ *
+ * @author HP
+ */
 public class ClientForm extends javax.swing.JFrame {
 
-
+    /**
+     * Creates new form ClientF
+     */
     public ClientForm() {
         initComponents();
-        ImageIcon icon = new ImageIcon("src/Images/half-logo-icon.png");
-        setIconImage(icon.getImage());
     }
 
     /**
@@ -76,7 +80,7 @@ public class ClientForm extends javax.swing.JFrame {
 
         sysIdLabel.setText("SYSTEM ID");
 
-        activate.setText("Activate License");
+        activate.setText("Activate License ");
         activate.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 activateActionPerformed(evt);
@@ -149,8 +153,12 @@ public class ClientForm extends javax.swing.JFrame {
         String mac = MACAddress.getMAC();
         String cpu = cpuSN.getWindowsCPU_SerialNumber();
         String motherboard = motherboardSN.getmotherboardSN();
+//        int sub = (Connection con = ConnectionProviderC.getConn(); PreparedStatement pstmt = con.prepareStatement(SELECT subscription FROM userdb WHERE hashkey = key;
+//););
+        int button =0;
 
-        udpClient(un, sysId, key, mac, cpu, motherboard, 1);
+        tcpClient(un, sysId, key, mac, cpu, motherboard,1,button);
+        
     }//GEN-LAST:event_deactivateActionPerformed
 
     private void activateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_activateActionPerformed
@@ -161,9 +169,11 @@ public class ClientForm extends javax.swing.JFrame {
         String mac = MACAddress.getMAC();
         String cpu = cpuSN.getWindowsCPU_SerialNumber();
         String motherboard = motherboardSN.getmotherboardSN();
+        int button = 1;
 
         saveToDatabase(un, sysId, key, mac, cpu, motherboard);
-        udpClient(un, sysId, key, mac, cpu, motherboard, 0);
+        tcpClient(un, sysId, key, mac, cpu, motherboard, 0,button);
+        
     }//GEN-LAST:event_activateActionPerformed
     public void saveToDatabase(String un, String sysId, String key, String mac, String cpu, String motherboard) {
 
@@ -188,7 +198,7 @@ public class ClientForm extends javax.swing.JFrame {
         }
     }
 
-    public void udpClient(String un, String sysId, String key, String mac, String cpu, String motherboard, int subs) {
+    public void tcpClient(String un, String sysId, String key, String mac, String cpu, String motherboard, int subs, int button) {
         JsonObject rowJson = new JsonObject();
         rowJson.addProperty("Username", un);
         rowJson.addProperty("SystemID", sysId);
@@ -197,18 +207,16 @@ public class ClientForm extends javax.swing.JFrame {
         rowJson.addProperty("CPU_ID", cpu);
         rowJson.addProperty("MACAddress", mac);
         rowJson.addProperty("Subscription", subs);
+        rowJson.addProperty("Button", button);
 
         Gson gson = new Gson();
         String jsonString = gson.toJson(rowJson);
 
         try {
-            // Convert JSON data to byte array
-            
-
-            
-                Socket s = new Socket("localhost",4999);
+            // establish connection
+            Socket s = new Socket("localhost",4999);
         
-        // Create an output stream to send data
+            // Create an output stream to send data
             OutputStream outputStream = s.getOutputStream();
 
             PrintWriter writer = new PrintWriter(outputStream, true);
@@ -225,35 +233,21 @@ public class ClientForm extends javax.swing.JFrame {
 
                 // Receive the response from the server
                String receiveData=clientReader.readLine();
+                
+              
+                         
+            if("1".equals(receiveData)) {
+                        try { Connection con = ConnectionProviderC.getConn();
+                        String updateQuery1 = "UPDATE userdb SET MotherboardSN=?, CPU_ID=?, MACAddress=?, Subscription = ? WHERE Hash_Key = ?";
 
-                if (null == receiveData) {
-                    JOptionPane.showMessageDialog(null, "User not registered");
-                } else//                String response = new String(receiveData.getData(), 0, receiveData.getLength());
-//                int subsVal = Integer.parseInt(response.trim());
-            switch (receiveData) {
-                case "1":
-                    JOptionPane.showMessageDialog(null, "License Activated Successfully");
-                    break;
-                case "0":
-                    JOptionPane.showMessageDialog(null, "License Deactivated Successfully");
-                    break;
-                default:
-                    JOptionPane.showMessageDialog(null, "User not registered");
-                    break;
-            }
-                System.out.println("Server response: " + receiveData);
-            
-                String response = new String(receivePacket.getData(), 0, receivePacket.getLength());
-                int subsVal = Integer.parseInt(response.trim());
-                if (subsVal == 1) {
-                    String updateQuery = "UPDATE userdb SET Subscription=? WHERE Hash_key=?";
-
-                    try (Connection con = ConnectionProviderC.getConn(); PreparedStatement pstmt = con.prepareStatement(updateQuery);) {
-                        pstmt.setInt(1, 1);
-                        pstmt.setString(2, key);
-
+                        PreparedStatement pstmt = con.prepareStatement(updateQuery1);
+                        pstmt.setString(1,motherboard);
+                        pstmt.setString(2,cpu);
+                        pstmt.setString(3, mac);
+                        pstmt.setInt(4, 1); // Set Subscription to 1 (activated)
+                        pstmt.setString(5, key);
                         int rowsAffected = pstmt.executeUpdate();
-
+                    
                         if (rowsAffected > 0) {
                             JOptionPane.showMessageDialog(null, "License Activated Successfully!");
                         } else {
@@ -263,12 +257,13 @@ public class ClientForm extends javax.swing.JFrame {
                     } catch (Exception excep) {
                         JOptionPane.showMessageDialog(null, excep);
                     }
-                } else if (subsVal == 0) {
-                    try {
+            }
+            else if("10".equals(receiveData)){
+                     try {
                         Connection con = ConnectionProviderC.getConn();
-                        String updateQuery = "UPDATE userdb SET MotherboardSN=?, CPU_ID=?, MACAddress=?, Subscription = ? WHERE Hash_Key = ?";
+                        String updateQuery1 = "UPDATE userdb SET MotherboardSN=?, CPU_ID=?, MACAddress=?, Subscription = ? WHERE Hash_Key = ?";
 
-                        PreparedStatement pstmt = con.prepareStatement(updateQuery);
+                        PreparedStatement pstmt = con.prepareStatement(updateQuery1);
                         pstmt.setString(1, null);
                         pstmt.setString(2, null);
                         pstmt.setString(3, null);
@@ -288,19 +283,31 @@ public class ClientForm extends javax.swing.JFrame {
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
-                } else {
-                    JOptionPane.showMessageDialog(null, "User not registered");
-                }
-                System.out.println("Server response: " + response);
             }
-
-            // Display a success message
-//                JOptionPane.showMessageDialog(null, "License File Generated");
+            else if("0".equals(receiveData)){
+                 JOptionPane.showMessageDialog(null, "License Already Deactivated");
+            }
+            else if("11".equals(receiveData)){
+                 JOptionPane.showMessageDialog(null, "License Already Activated");
+            }
+            else{
+                
+                    JOptionPane.showMessageDialog(null, "User not registered");
+            }
+            
+                System.out.println("Server response: " + receiveData);
+                
+                //Close connection
+                s.close();
+           
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-           
+
+
+
+
     /**
      * @param args the command line arguments
      */
