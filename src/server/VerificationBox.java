@@ -1,3 +1,4 @@
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
@@ -27,6 +28,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.FileReader;
 import java.io.FileWriter;
+import tcp.TCPClient;
+import tcp.TCPServer;
 
 /**
  *
@@ -77,6 +80,8 @@ public class VerificationBox extends javax.swing.JFrame {
             row[1] = list.get(i).getSystemID();
             row[2] = list.get(i).getHash_Key();
 
+            
+  
             String directoryPath = "src\\client_lic_files\\";
             String VerifyfileName = list.get(i).getHash_Key() + "_verify.json";
             File vf = new File(directoryPath + VerifyfileName);

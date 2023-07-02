@@ -16,13 +16,15 @@ import java.sql.SQLException;
 import hardwareConfigs.MACAddress;
 import hardwareConfigs.cpuSN;
 import hardwareConfigs.motherboardSN;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -207,39 +209,46 @@ public class ClientForm extends javax.swing.JFrame {
 
         try {
             // Convert JSON data to byte array
-            byte[] sendData = jsonString.getBytes();
+            
 
-            // Destination IP address and port number
-            InetAddress serverAddress = InetAddress.getLocalHost();
-            int serverPort = 9999;
+            
+                Socket s = new Socket("localhost",4999);
+        
+        // Create an output stream to send data
+            OutputStream outputStream = s.getOutputStream();
 
-            // Create UDP socket
-            try (DatagramSocket socket = new DatagramSocket()) {
-                // Create datagram packet with the JSON data
-                DatagramPacket packet = new DatagramPacket(sendData, sendData.length, serverAddress, serverPort);
+            PrintWriter writer = new PrintWriter(outputStream, true);
 
-                // Send the datagram packet
-                socket.send(packet);
+              
+                System.out.println(jsonString);
+                writer.println(jsonString);
 
-                System.out.println("JSON data sent over UDP.");
+                System.out.println("JSON data sent over TCP.");
 
-                byte[] receiveData = new byte[1024];
-                DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+                InputStream clientInputStream = s.getInputStream();
+                BufferedReader clientReader = new BufferedReader(new InputStreamReader(clientInputStream));
+               
 
                 // Receive the response from the server
-                socket.receive(receivePacket);
+               String receiveData=clientReader.readLine();
 
-                String response = new String(receivePacket.getData(), 0, receivePacket.getLength());
-                int subsVal = Integer.parseInt(response.trim());
-                if (subsVal == 1) {
-                    JOptionPane.showMessageDialog(null, "License Activated Successfully");
-                } else if (subsVal == 0) {
-                    JOptionPane.showMessageDialog(null, "License Deactivated Successfully");
-                } else{
+                if (null == receiveData) {
                     JOptionPane.showMessageDialog(null, "User not registered");
-                }
-                System.out.println("Server response: " + response);
+                } else//                String response = new String(receiveData.getData(), 0, receiveData.getLength());
+//                int subsVal = Integer.parseInt(response.trim());
+            switch (receiveData) {
+                case "1":
+                    JOptionPane.showMessageDialog(null, "License Activated Successfully");
+                    break;
+                case "0":
+                    JOptionPane.showMessageDialog(null, "License Deactivated Successfully");
+                    break;
+                default:
+                    JOptionPane.showMessageDialog(null, "User not registered");
+                    break;
             }
+                System.out.println("Server response: " + receiveData);
+            
 
             // Display a success message
 //                JOptionPane.showMessageDialog(null, "License File Generated");
