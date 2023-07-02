@@ -5,10 +5,7 @@
 package client;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import databases.ConnectionProviderC;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,18 +14,16 @@ import hardwareConfigs.MACAddress;
 import hardwareConfigs.cpuSN;
 import hardwareConfigs.motherboardSN;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import javax.swing.JOptionPane;
+import java.sql.ResultSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -153,12 +148,24 @@ public class ClientForm extends javax.swing.JFrame {
         String mac = MACAddress.getMAC();
         String cpu = cpuSN.getWindowsCPU_SerialNumber();
         String motherboard = motherboardSN.getmotherboardSN();
-//        int sub = (Connection con = ConnectionProviderC.getConn(); PreparedStatement pstmt = con.prepareStatement(SELECT subscription FROM userdb WHERE hashkey = key;
-//););
-        int button =0;
+        int button = 0;
+        try {
+            Connection con = ConnectionProviderC.getConn();
+            PreparedStatement pstmt;
+            String query = "SELECT Subscription FROM userdb WHERE Hash_Key =? ";
+            pstmt = con.prepareStatement(query);
+            pstmt.setString(1, key);
+            ResultSet resultset = pstmt.executeQuery();
 
-        tcpClient(un, sysId, key, mac, cpu, motherboard,1,button);
-        
+            if (resultset.next()) {
+                int sub = resultset.getInt("Subscription");
+                tcpClient(un, sysId, key, mac, cpu, motherboard, sub, button);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
     }//GEN-LAST:event_deactivateActionPerformed
 
     private void activateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_activateActionPerformed
@@ -170,10 +177,26 @@ public class ClientForm extends javax.swing.JFrame {
         String cpu = cpuSN.getWindowsCPU_SerialNumber();
         String motherboard = motherboardSN.getmotherboardSN();
         int button = 1;
+         try {
+            Connection con = ConnectionProviderC.getConn();
+            PreparedStatement pstmt;
+            String query = "SELECT Subscription FROM userdb WHERE Hash_Key =? ";
+            pstmt = con.prepareStatement(query);
+            pstmt.setString(1, key);
+            ResultSet resultset = pstmt.executeQuery();
+
+            if (resultset.next()) {
+                int sub = resultset.getInt("Subscription");
+                tcpClient(un, sysId, key, mac, cpu, motherboard, sub, button);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         saveToDatabase(un, sysId, key, mac, cpu, motherboard);
-        tcpClient(un, sysId, key, mac, cpu, motherboard, 0,button);
-        
+       
+
     }//GEN-LAST:event_activateActionPerformed
     public void saveToDatabase(String un, String sysId, String key, String mac, String cpu, String motherboard) {
 
@@ -214,99 +237,89 @@ public class ClientForm extends javax.swing.JFrame {
 
         try {
             // establish connection
-            Socket s = new Socket("localhost",4999);
-        
+            Socket s = new Socket("localhost", 4999);
+
             // Create an output stream to send data
             OutputStream outputStream = s.getOutputStream();
 
             PrintWriter writer = new PrintWriter(outputStream, true);
 
-              
-                System.out.println(jsonString);
-                writer.println(jsonString);
+            System.out.println(jsonString);
+            writer.println(jsonString);
 
-                System.out.println("JSON data sent over TCP.");
+            System.out.println("JSON data sent over TCP.");
 
-                InputStream clientInputStream = s.getInputStream();
-                BufferedReader clientReader = new BufferedReader(new InputStreamReader(clientInputStream));
-               
+            InputStream clientInputStream = s.getInputStream();
+            BufferedReader clientReader = new BufferedReader(new InputStreamReader(clientInputStream));
 
-                // Receive the response from the server
-               String receiveData=clientReader.readLine();
-                
-              
-                         
-            if("1".equals(receiveData)) {
-                        try { Connection con = ConnectionProviderC.getConn();
-                        String updateQuery1 = "UPDATE userdb SET MotherboardSN=?, CPU_ID=?, MACAddress=?, Subscription = ? WHERE Hash_Key = ?";
+            // Receive the response from the server
+            String receiveData = clientReader.readLine();
 
-                        PreparedStatement pstmt = con.prepareStatement(updateQuery1);
-                        pstmt.setString(1,motherboard);
-                        pstmt.setString(2,cpu);
-                        pstmt.setString(3, mac);
-                        pstmt.setInt(4, 1); // Set Subscription to 1 (activated)
-                        pstmt.setString(5, key);
-                        int rowsAffected = pstmt.executeUpdate();
-                    
-                        if (rowsAffected > 0) {
-                            JOptionPane.showMessageDialog(null, "License Activated Successfully!");
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Failed to activate license");
-                        }
+            if ("1".equals(receiveData)) {
+                try {
+                    Connection con = ConnectionProviderC.getConn();
+                    String updateQuery1 = "UPDATE userdb SET MotherboardSN=?, CPU_ID=?, MACAddress=?, Subscription = ? WHERE Hash_Key = ?";
 
-                    } catch (Exception excep) {
-                        JOptionPane.showMessageDialog(null, excep);
+                    PreparedStatement pstmt = con.prepareStatement(updateQuery1);
+                    pstmt.setString(1, motherboard);
+                    pstmt.setString(2, cpu);
+                    pstmt.setString(3, mac);
+                    pstmt.setInt(4, 1); // Set Subscription to 1 (activated)
+                    pstmt.setString(5, key);
+                    int rowsAffected = pstmt.executeUpdate();
+
+                    if (rowsAffected > 0) {
+                        JOptionPane.showMessageDialog(null, "License Activated Successfully!");
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Failed to activate license");
                     }
-            }
-            else if("10".equals(receiveData)){
-                     try {
-                        Connection con = ConnectionProviderC.getConn();
-                        String updateQuery1 = "UPDATE userdb SET MotherboardSN=?, CPU_ID=?, MACAddress=?, Subscription = ? WHERE Hash_Key = ?";
 
-                        PreparedStatement pstmt = con.prepareStatement(updateQuery1);
-                        pstmt.setString(1, null);
-                        pstmt.setString(2, null);
-                        pstmt.setString(3, null);
-                        pstmt.setInt(4, 0); // Set Subscription to 0 (deactivated)
-                        pstmt.setString(5, key);
+                } catch (Exception excep) {
+                    JOptionPane.showMessageDialog(null, excep);
+                }
+            } else if ("10".equals(receiveData)) {
+                try {
+                    Connection con = ConnectionProviderC.getConn();
+                    String updateQuery1 = "UPDATE userdb SET MotherboardSN=?, CPU_ID=?, MACAddress=?, Subscription = ? WHERE Hash_Key = ?";
 
-                        int rowsAffected = pstmt.executeUpdate();
+                    PreparedStatement pstmt = con.prepareStatement(updateQuery1);
+                    pstmt.setString(1, null);
+                    pstmt.setString(2, null);
+                    pstmt.setString(3, null);
+                    pstmt.setInt(4, 0); // Set Subscription to 0 (deactivated)
+                    pstmt.setString(5, key);
 
-                        if (rowsAffected > 0) {
-                            JOptionPane.showMessageDialog(null, "License Deactivated Successfully!");
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Failed to deactivate the license");
-                        }
+                    int rowsAffected = pstmt.executeUpdate();
 
-                        pstmt.close();
-                        con.close();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
+                    if (rowsAffected > 0) {
+                        JOptionPane.showMessageDialog(null, "License Deactivated Successfully!");
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Failed to deactivate the license");
                     }
+
+                    pstmt.close();
+                    con.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            } else if ("0".equals(receiveData)) {
+                JOptionPane.showMessageDialog(null, "License Already Deactivated");
+            } else if ("11".equals(receiveData)) {
+                JOptionPane.showMessageDialog(null, "License Already Activated");
+            } else {
+
+                JOptionPane.showMessageDialog(null, "User not registered");
             }
-            else if("0".equals(receiveData)){
-                 JOptionPane.showMessageDialog(null, "License Already Deactivated");
-            }
-            else if("11".equals(receiveData)){
-                 JOptionPane.showMessageDialog(null, "License Already Activated");
-            }
-            else{
-                
-                    JOptionPane.showMessageDialog(null, "User not registered");
-            }
-            
-                System.out.println("Server response: " + receiveData);
-                
-                //Close connection
-                s.close();
-           
+
+            System.out.println("Server response: " + receiveData);
+
+            //Close connection
+            s.close();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
-
-
 
     /**
      * @param args the command line arguments
