@@ -1,14 +1,8 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
+
 package client;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import databases.ConnectionProviderC;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,27 +10,16 @@ import java.sql.SQLException;
 import hardwareConfigs.MACAddress;
 import hardwareConfigs.cpuSN;
 import hardwareConfigs.motherboardSN;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import javax.swing.JOptionPane;
 
-/**
- *
- * @author HP
- */
+
 public class ClientForm extends javax.swing.JFrame {
 
-    /**
-     * Creates new form ClientF
-     */
+
     public ClientForm() {
         initComponents();
     }
@@ -78,14 +61,14 @@ public class ClientForm extends javax.swing.JFrame {
 
         sysIdLabel.setText("SYSTEM ID");
 
-        activate.setText("Generate Activate License File");
+        activate.setText("Activate License");
         activate.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 activateActionPerformed(evt);
             }
         });
 
-        deactivate.setText("Generate Deactivate License File");
+        deactivate.setText("Deactivate License");
         deactivate.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 deactivateActionPerformed(evt);
@@ -152,8 +135,7 @@ public class ClientForm extends javax.swing.JFrame {
         String cpu = cpuSN.getWindowsCPU_SerialNumber();
         String motherboard = motherboardSN.getmotherboardSN();
 
-        saveToJson(un, sysId, key, mac, cpu, motherboard, 1);
-        checkDeactivation(un, sysId, key, mac, cpu, motherboard);
+        udpClient(un, sysId, key, mac, cpu, motherboard, 1);
     }//GEN-LAST:event_deactivateActionPerformed
 
     private void activateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_activateActionPerformed
@@ -166,8 +148,7 @@ public class ClientForm extends javax.swing.JFrame {
         String motherboard = motherboardSN.getmotherboardSN();
 
         saveToDatabase(un, sysId, key, mac, cpu, motherboard);
-        saveToJson(un, sysId, key, mac, cpu, motherboard, 0);
-        checkActivation(un, sysId, key, mac, cpu, motherboard);
+        udpClient(un, sysId, key, mac, cpu, motherboard, 0);
     }//GEN-LAST:event_activateActionPerformed
     public void saveToDatabase(String un, String sysId, String key, String mac, String cpu, String motherboard) {
 
@@ -192,7 +173,7 @@ public class ClientForm extends javax.swing.JFrame {
         }
     }
 
-    public void saveToJson(String un, String sysId, String key, String mac, String cpu, String motherboard, int subs) {
+    public void udpClient(String un, String sysId, String key, String mac, String cpu, String motherboard, int subs) {
         JsonObject rowJson = new JsonObject();
         rowJson.addProperty("Username", un);
         rowJson.addProperty("SystemID", sysId);
@@ -232,10 +213,49 @@ public class ClientForm extends javax.swing.JFrame {
                 String response = new String(receivePacket.getData(), 0, receivePacket.getLength());
                 int subsVal = Integer.parseInt(response.trim());
                 if (subsVal == 1) {
-                    JOptionPane.showMessageDialog(null, "License Activated Successfully");
+                    String updateQuery = "UPDATE userdb SET Subscription=? WHERE Hash_key=?";
+
+                    try (Connection con = ConnectionProviderC.getConn(); PreparedStatement pstmt = con.prepareStatement(updateQuery);) {
+                        pstmt.setInt(1, 1);
+                        pstmt.setString(2, key);
+
+                        int rowsAffected = pstmt.executeUpdate();
+
+                        if (rowsAffected > 0) {
+                            JOptionPane.showMessageDialog(null, "License Activated Successfully!");
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Failed to activate license");
+                        }
+
+                    } catch (Exception excep) {
+                        JOptionPane.showMessageDialog(null, excep);
+                    }
                 } else if (subsVal == 0) {
-                    JOptionPane.showMessageDialog(null, "License Deactivated Successfully");
-                } else{
+                    try {
+                        Connection con = ConnectionProviderC.getConn();
+                        String updateQuery = "UPDATE userdb SET MotherboardSN=?, CPU_ID=?, MACAddress=?, Subscription = ? WHERE Hash_Key = ?";
+
+                        PreparedStatement pstmt = con.prepareStatement(updateQuery);
+                        pstmt.setString(1, null);
+                        pstmt.setString(2, null);
+                        pstmt.setString(3, null);
+                        pstmt.setInt(4, 0); // Set Subscription to 0 (deactivated)
+                        pstmt.setString(5, key);
+
+                        int rowsAffected = pstmt.executeUpdate();
+
+                        if (rowsAffected > 0) {
+                            JOptionPane.showMessageDialog(null, "License Deactivated Successfully!");
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Failed to deactivate the license");
+                        }
+
+                        pstmt.close();
+                        con.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                } else {
                     JOptionPane.showMessageDialog(null, "User not registered");
                 }
                 System.out.println("Server response: " + response);
@@ -247,151 +267,7 @@ public class ClientForm extends javax.swing.JFrame {
             e.printStackTrace();
         }
     }
-
-    public void checkActivation(String un, String sysId, String key, String mac, String cpu, String motherboard) {
-        String directoryPath = "src\\server_lic_files\\";
-        String VerifyfileName = key + "_verify.json";
-        File vf = new File(directoryPath + VerifyfileName);
-//        System.out.println(directoryPath + VerifyfileName);
-        if (vf.exists()) {
-            JsonElement jsonElement;
-            try (FileReader fileReader = new FileReader(directoryPath + VerifyfileName)) {
-                jsonElement = JsonParser.parseReader(fileReader);
-
-                if (jsonElement.isJsonArray()) {
-                    JsonArray jsonArray = jsonElement.getAsJsonArray();
-                    for (JsonElement element : jsonArray) {
-                        if (element.isJsonObject()) {
-                            JsonObject jsonObject = element.getAsJsonObject();
-
-                            String username = jsonObject.get("Username").getAsString();
-                            String sysid = jsonObject.get("SystemID").getAsString();
-                            String hashkey = jsonObject.get("Hash_Key").getAsString();
-                            String mothersn = jsonObject.get("MotherboardSN").getAsString();
-                            String cpuid = jsonObject.get("CPU_ID").getAsString();
-                            String macid = jsonObject.get("MACAddress").getAsString();
-
-                            if (username.equals(un) && sysid.equals(sysId) && hashkey.equals(key) && mothersn.equals(motherboard) && cpuid.equals(cpu) && macid.equals(mac)) {
-
-                                String updateQuery = "UPDATE userdb SET Subscription=? WHERE Hash_key=?";
-
-                                try (Connection con = ConnectionProviderC.getConn(); PreparedStatement pstmt = con.prepareStatement(updateQuery);) {
-                                    pstmt.setInt(1, 1);
-                                    pstmt.setString(2, hashkey);
-
-                                    int rowsAffected = pstmt.executeUpdate();
-
-                                    if (rowsAffected > 0) {
-                                        JOptionPane.showMessageDialog(null, "License Activated!");
-                                    } else {
-                                        JOptionPane.showMessageDialog(null, "Failed to activate license");
-                                    }
-
-                                } catch (Exception excep) {
-                                    JOptionPane.showMessageDialog(null, excep);
-                                }
-
-                            }
-                        }
-
-                    }
-
-                } else {
-                    System.out.println("Invalid JSON file format. Expected a JSON array.");
-                }
-                fileReader.close();
-                Deletejson(directoryPath, VerifyfileName);
-
-            } catch (IOException exception) {
-                exception.printStackTrace();
-            }
-        }
-    }
-
-    public void checkDeactivation(String un, String sysId, String key, String mac, String cpu, String motherboard) {
-        String directoryPath1 = "src\\server_lic_files\\";
-        String fileName = key + "_deactivate.json";
-        File df = new File(directoryPath1 + fileName);
-//        System.out.println(directoryPath + VerifyfileName);
-        if (df.exists()) {
-            JsonElement jsonElement;
-            try (FileReader fileReader = new FileReader(directoryPath1 + fileName)) {
-                jsonElement = JsonParser.parseReader(fileReader);
-
-                if (jsonElement.isJsonArray()) {
-                    JsonArray jsonArray = jsonElement.getAsJsonArray();
-                    for (JsonElement element : jsonArray) {
-                        if (element.isJsonObject()) {
-                            JsonObject jsonObject = element.getAsJsonObject();
-
-                            String username = jsonObject.get("Username").getAsString();
-                            String sysid = jsonObject.get("SystemID").getAsString();
-                            String hashkey = jsonObject.get("Hash_Key").getAsString();
-                            String mothersn = jsonObject.get("MotherboardSN").getAsString();
-                            String cpuid = jsonObject.get("CPU_ID").getAsString();
-                            String macid = jsonObject.get("MACAddress").getAsString();
-
-                            if (username.equals(un) && sysid.equals(sysId) && hashkey.equals(key) && mothersn.equals(motherboard) && cpuid.equals(cpu) && macid.equals(mac)) {
-
-                                try {
-                                    Connection con = ConnectionProviderC.getConn();
-                                    String updateQuery = "UPDATE userdb SET MotherboardSN=?, CPU_ID=?, MACAddress=?, Subscription = ? WHERE Hash_Key = ?";
-
-                                    PreparedStatement pstmt = con.prepareStatement(updateQuery);
-                                    pstmt.setString(1, null);
-                                    pstmt.setString(2, null);
-                                    pstmt.setString(3, null);
-                                    pstmt.setInt(4, 0); // Set Subscription to 0 (deactivated)
-                                    pstmt.setString(4, hashkey);
-
-                                    int rowsAffected = pstmt.executeUpdate();
-
-                                    if (rowsAffected > 0) {
-                                        Deletejson(directoryPath1, fileName);
-                                        JOptionPane.showMessageDialog(null, "License Deactivated!");
-                                    } else {
-                                        JOptionPane.showMessageDialog(null, "Failed to deactivate the license");
-                                    }
-
-                                    pstmt.close();
-                                    con.close();
-                                } catch (SQLException e) {
-                                    e.printStackTrace();
-                                }
-
-                                JOptionPane.showMessageDialog(null, "License Deactivated!");
-                            }
-                        }
-
-                    }
-                } else {
-                    System.out.println("Invalid JSON file format. Expected a JSON array.");
-                }
-
-            } catch (IOException exception) {
-                exception.printStackTrace();
-            }
-        }
-    }
-
-    public static void Deletejson(String directoryPath, String fileName) {
-        String filePath = directoryPath + fileName;
-
-        File jsonFile = new File(filePath);
-
-        if (jsonFile.exists()) {
-            try {
-                Path path = Paths.get(filePath);
-                Files.delete(path);
-                System.out.println("JSON file deleted successfully.");
-            } catch (IOException e) {
-                System.out.println("Error occurred while deleting the JSON file: " + e.getMessage());
-            }
-        } else {
-            System.out.println("JSON file does not exist.");
-        }
-    }
-
+           
     /**
      * @param args the command line arguments
      */

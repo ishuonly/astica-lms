@@ -112,7 +112,7 @@
     </Component>
     <Component class="javax.swing.JButton" name="activate">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Generate Activate License File"/>
+        <Property name="text" type="java.lang.String" value="Activate License"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="activateActionPerformed"/>
@@ -120,7 +120,7 @@
     </Component>
     <Component class="javax.swing.JButton" name="deactivate">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Generate Deactivate License File"/>
+        <Property name="text" type="java.lang.String" value="Deactivate License"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="deactivateActionPerformed"/>
