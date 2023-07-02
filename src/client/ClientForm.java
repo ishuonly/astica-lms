@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 
@@ -22,6 +23,8 @@ public class ClientForm extends javax.swing.JFrame {
 
     public ClientForm() {
         initComponents();
+        ImageIcon icon = new ImageIcon("src/Images/half-logo-icon.png");
+        setIconImage(icon.getImage());
     }
 
     /**
